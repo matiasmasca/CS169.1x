@@ -20,14 +20,6 @@ class BookInStock
   end
 
   def price_as_string
-    #printf('$%.02f', @price)
     "$%.2f" % @price
   end
 end
-
-a = BookInStock.new("123123123", 33.95)
-p a.price
-a.price_as_string 
-
-b = BookInStock.new('isbn11', 33.95)
-p b.price_as_string == '$33.95'
