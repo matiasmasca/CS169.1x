@@ -24,10 +24,9 @@ module FunWithStrings
 
   end
   def anagram_groups
-    grupo = Array.new(0) { Array.new(0) }
-    # your code here
-    return grupo if self.length == 0
-  
+    palabras = self.downcase.scan(/\b\w+\b/)
+    palabras.group_by{|w| w.downcase.each_char.sort}.values.each{|v| v.uniq!}
+    #Group_by es de Enumerable. http://ruby-doc.org/core-2.0/Enumerable.html#method-i-group_by
   end
 end
 
@@ -36,5 +35,3 @@ end
 class String
   include FunWithStrings
 end
-
-p "".anagram_groups
