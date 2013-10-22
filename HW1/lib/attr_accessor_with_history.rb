@@ -18,18 +18,3 @@ class Class
 }
   end
 end
-
-
-
-#given test code
-class Foo
-        #metaprogramming
-    attr_accessor_with_history :bar
-end
-
-f = Foo.new # => #<Foo:0x127e678>
-puts f.bar = 3 # => 3
-puts f.bar = :wowzo # => :wowzo
-puts f.bar = 'boo!' # => 'boo!'
-puts f.bar_history # => [nil, 3, :wowzo, 'boo!']
-
