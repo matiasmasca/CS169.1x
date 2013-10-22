@@ -1,7 +1,7 @@
 require 'dessert'
 require 'debugger'
 
-describe Dessert, :pending => true do
+describe Dessert do
   describe 'cake' do
     subject { Dessert.new('cake', 400) }
     its(:calories) { should == 400 }
