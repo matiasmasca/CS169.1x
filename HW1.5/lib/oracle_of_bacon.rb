@@ -20,34 +20,33 @@ class OracleOfBacon
   validate :from_does_not_equal_to
 
   def from_does_not_equal_to
-    # YOUR CODE HERE
+    errors.add(:from_does_not_equal_to, "cannot be the same as To") if from == to
   end
 
-  def initialize(api_key='38b99ce9ec87')
-    # your code here
-    @to = "Kevin Bacon"
-    @from = "Kevin Bacon"
-  end
+  def initialize(api_key='38b99ce9ec87', from='Kevin Bacon', to='Kevin Bacon')
+     @from = from
+     @to = to
+     @api_key = api_key
+   end
 
-  def find_connections
-    make_uri_from_arguments
-    begin
-      xml = URI.parse(uri).read
-    rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
-      Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
-      Net::ProtocolError => e
-      # convert all of these into a generic OracleOfBacon::NetworkError,
-      #  but keep the original error message
-      # your code here
-    end
-    # your code here: create the OracleOfBacon::Response object
+ def find_connections
+  make_uri_from_arguments
+  begin
+    xml = URI.parse(uri).read
+  rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
+    Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
+    Net::ProtocolError => e
+    # convert all of these into a generic OracleOfBacon::NetworkError,
+    # but keep the original error message
+    raise OracleOfBacon::NetworkError
   end
-
+    OracleOfBacon::Response.new(xml)
+ end
+ 
   def make_uri_from_arguments
-    # your code here: set the @uri attribute to properly-escaped URI
-    #   constructed from the @from, @to, @api_key arguments
+    @uri = "http://oracleofbacon.org/cgi-bin/xml?p=#{@api_key}&a=#{CGI.escape(@from)}&b=#{CGI.escape(@to)}"
   end
-      
+ 
   class Response
     attr_reader :type, :data
     # create a Response object from a string of XML markup.
@@ -57,19 +56,36 @@ class OracleOfBacon
     end
 
     private
-
     def parse_response
       if ! @doc.xpath('/error').empty?
         parse_error_response
-      # your code here: 'elsif' clauses to handle other responses
-      # for responses not matching the 3 basic types, the Response
-      # object should have type 'unknown' and data 'unknown response'         
+      elsif @doc.xpath('/spellcheck').any?
+        parse_spellcheck_response
+      elsif @doc.xpath('/link').any?
+        parse_graph_response
+      else
+        parse_unknown_response
       end
     end
-    def parse_error_response
+
+   def parse_error_response
       @type = :error
       @data = 'Unauthorized access'
-    end
+   end
+
+   def parse_spellcheck_response
+      @type = :spellcheck
+      @data = @doc.xpath('//match').collect{|m| m.text}
+   end
+
+   def parse_graph_response
+      @type = :graph
+      @data = @doc.xpath('//actor').collect{|a| a.text}.zip(@doc.xpath('//movie').collect{|m| m.text}).flatten.compact
+   end
+  
+   def parse_unknown_response
+     @type = :unknown
+     @data = "unknown response"
+   end
   end
 end
-
