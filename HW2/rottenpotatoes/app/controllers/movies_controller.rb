@@ -9,25 +9,31 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = Movie.all_ratings.keys #Todos los posibles
     @filter_ratings = Hash.new 
-    @filter_ratings = params[:ratings] || session[:ratings] || Movie.all_ratings
+    #@filter_ratings = session[:ratings] || params[:ratings]  
     
-=begin $Deprecado...
-    if session.has_key?(:ratings) && session[:ratings].size > 0 || params.has_key?(:ratings)
-        session[:ratings] = params[:ratings]
+    #Si vienen parametros, modificar la sesion, sino dejar.
+    #Si no hay nada crear.
+    if session.has_key?(:ratings) && session[:ratings].size > 0 
+        if params.has_key?(:ratings)
+          session[:ratings] = params[:ratings]
+        end  
         @filter_ratings = session[:ratings] unless session[:ratings] == nil
       else
         session[:ratings] = params[:ratings] unless params[:ratings] == nil
-        @filter_ratings = @all_ratings
+        @filter_ratings = Movie.all_ratings
     end
-=end
-   if params[:sort]
-      sort = params[:sort]
+    #logger.debug "el FILTRO es: #{@filter_ratings}"
+    @filter_ratings = Movie.all_ratings if @filter_ratings == nil
+  
+   session[:sort] = params[:sort]  unless params[:sort] == nil
+
+   if session[:sort]
+      sort = session[:sort]
       @movies = Movie.filter(@filter_ratings.keys, sort)   
     else
       @movies = Movie.filter(@filter_ratings.keys)
     end 
-
-
+    session[:ratings] = @filter_ratings
   end
  
   def new

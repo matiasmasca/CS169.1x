@@ -8,27 +8,10 @@ class Movie < ActiveRecord::Base
  end
 
   def self.filter(filtro, sort_by='')
-  	#sort_by = 'title'
-  find_params = Hash.new
-  find_params[:order] = sort_by
-  find_params[:conditions] = ["rating IN (?)", filtro]
-   @movies = Movie.find(:all, find_params)
-
-=begin 
-    if sort != ''
-	   #@movies = Movie.all(:order=>sort)
-	   @movies = Movie.order(sort).where(rating: filtro)
-	else
-	   @movies = Movie.where(rating: filtro)
-	end 
+    find_params = Hash.new
+    find_params[:order] = sort_by
+    find_params[:conditions] = ["rating IN (?)", filtro]
+    #logger.debug "LAS condiciones del filtro: #{find_params.inspect}"
+    @movies = Movie.find(:all, find_params)
   end
-  find_params = Hash.new
-  find_params[:order] = @sort_by
-  find_params[:conditions] = ["rating IN (?)", ratings]
-  @movies = Movie.find(:all, find_params)
-
- @movies = Movie.find(:all, :conditions=>{'rating'=>filtro}, :order=>sort_by)
-
-=end 
- end
 end
