@@ -9,7 +9,6 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = Movie.all_ratings.keys #Todos los posibles
     @filter_ratings = Hash.new 
-    #@filter_ratings = session[:ratings] || params[:ratings]  
     
     #Si vienen parametros, modificar la sesion, sino dejar.
     #Si no hay nada crear.
@@ -34,6 +33,10 @@ class MoviesController < ApplicationController
       @movies = Movie.filter(@filter_ratings.keys)
     end 
     session[:ratings] = @filter_ratings
+    
+    if session[:sort].present? && params[:sort].nil? || session[:ratings].present? && params[:ratings].nil?
+      redirect_to movies_path(ratings: session[:ratings], sort: session[:sort] ) and return
+    end
   end
  
   def new
